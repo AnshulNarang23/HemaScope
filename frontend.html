@@ -1,0 +1,1019 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AI Health Monitor — Predictive Health Assistant</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --pomegranate:#C0392B;
+      --pomegranate-dark:#922b21;
+      --pomegranate-light:#f5b7b1;
+      --cream:#FFF8F0;
+      --black:#0D0D0D;
+      --white:#FFFFFF;
+      --gray:#6B6B6B;
+      --light-gray:#F2F2F2;
+      --border:#0D0D0D;
+      --shadow:4px 4px 0px #0D0D0D;
+      --shadow-lg:6px 6px 0px #0D0D0D;
+      --radius:12px;
+      --ok:#15803d;
+      --ok-bg:#dcfce7;
+      --danger:#dc2626;
+      --danger-bg:#fee2e2;
+    }
+    body{
+      font-family:'Inter',sans-serif;
+      background:var(--cream);
+      color:var(--black);
+      min-height:100vh;
+    }
+    /* NAV */
+    nav{
+      background:var(--white);
+      border-bottom:2px solid var(--border);
+      padding:0 32px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      height:64px;
+      position:sticky;
+      top:0;
+      z-index:100;
+    }
+    .nav-logo{
+      font-family:'Syne',sans-serif;
+      font-weight:800;
+      font-size:20px;
+      letter-spacing:-0.03em;
+      color:var(--black);
+      display:flex;
+      align-items:center;
+      gap:8px;
+      text-decoration:none;
+    }
+    .nav-logo span{
+      background:var(--pomegranate);
+      color:#fff;
+      padding:2px 8px;
+      border-radius:6px;
+      font-size:18px;
+    }
+    .nav-badge{
+      background:var(--pomegranate-light);
+      color:var(--pomegranate-dark);
+      border:2px solid var(--pomegranate-dark);
+      padding:4px 12px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:700;
+      letter-spacing:0.04em;
+      text-transform:uppercase;
+    }
+    /* HERO */
+    .hero{
+      max-width:960px;
+      margin:64px auto 0;
+      padding:0 24px 48px;
+      display:grid;
+      grid-template-columns:1fr auto;
+      gap:48px;
+      align-items:start;
+    }
+    @media(max-width:700px){.hero{grid-template-columns:1fr;}.hero-visual{display:none;}}
+    .hero-eyebrow{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      background:var(--pomegranate);
+      color:#fff;
+      border:2px solid var(--black);
+      border-radius:999px;
+      padding:5px 14px;
+      font-size:12px;
+      font-weight:700;
+      letter-spacing:0.06em;
+      text-transform:uppercase;
+      margin-bottom:20px;
+      box-shadow:var(--shadow);
+    }
+    .hero-eyebrow::before{content:"●";font-size:8px;animation:blink 1.4s infinite;}
+    @keyframes blink{0%,100%{opacity:1}50%{opacity:0.2}}
+    h1{
+      font-family:'Syne',sans-serif;
+      font-size:clamp(32px,5vw,58px);
+      font-weight:800;
+      letter-spacing:-0.03em;
+      line-height:1.05;
+      margin-bottom:20px;
+    }
+    h1 em{
+      font-style:normal;
+      color:var(--pomegranate);
+      text-decoration:underline;
+      text-decoration-color:var(--pomegranate-light);
+      text-underline-offset:4px;
+    }
+    .hero-sub{
+      font-size:17px;
+      color:var(--gray);
+      line-height:1.6;
+      max-width:480px;
+      margin-bottom:28px;
+    }
+    .tags{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-bottom:0;
+    }
+    .tag{
+      background:var(--white);
+      border:2px solid var(--black);
+      border-radius:999px;
+      padding:5px 14px;
+      font-size:12px;
+      font-weight:600;
+      box-shadow:2px 2px 0 var(--black);
+    }
+    .hero-visual{
+      width:200px;
+      height:200px;
+      background:var(--pomegranate);
+      border:3px solid var(--black);
+      border-radius:50%;
+      box-shadow:var(--shadow-lg);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:80px;
+      flex-shrink:0;
+      animation:float 4s ease-in-out infinite;
+    }
+    @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+    /* MAIN CARD */
+    .main{
+      max-width:960px;
+      margin:0 auto;
+      padding:0 24px 80px;
+    }
+    .card{
+      background:var(--white);
+      border:2px solid var(--black);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow-lg);
+      padding:32px;
+      margin-bottom:24px;
+    }
+    .card-title{
+      font-family:'Syne',sans-serif;
+      font-size:22px;
+      font-weight:700;
+      margin-bottom:6px;
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+    .card-title-icon{
+      width:32px;height:32px;
+      background:var(--pomegranate);
+      color:#fff;
+      border:2px solid var(--black);
+      border-radius:8px;
+      display:flex;align-items:center;justify-content:center;
+      font-size:16px;
+    }
+    .card-desc{
+      color:var(--gray);
+      font-size:14px;
+      margin-bottom:28px;
+      line-height:1.5;
+    }
+    /* FORM */
+    .form-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fill,minmax(180px,1fr));
+      gap:16px;
+      margin-bottom:24px;
+    }
+    .field{display:flex;flex-direction:column;gap:6px;}
+    label{
+      font-size:12px;
+      font-weight:700;
+      letter-spacing:0.04em;
+      text-transform:uppercase;
+      color:var(--black);
+    }
+    .input-wrap{position:relative;}
+    input[type=number]{
+      width:100%;
+      border:2px solid var(--black);
+      border-radius:8px;
+      padding:11px 40px 11px 12px;
+      font-size:15px;
+      font-family:'Inter',sans-serif;
+      background:var(--cream);
+      color:var(--black);
+      outline:none;
+      transition:box-shadow 0.15s,border-color 0.15s;
+      -moz-appearance:textfield;
+    }
+    input[type=number]::-webkit-inner-spin-button,
+    input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;}
+    input[type=number]:focus{
+      box-shadow:var(--shadow);
+      background:var(--white);
+    }
+    .input-unit{
+      position:absolute;
+      right:10px;top:50%;transform:translateY(-50%);
+      font-size:11px;font-weight:600;color:var(--gray);
+      pointer-events:none;
+    }
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      background:var(--pomegranate);
+      color:#fff;
+      border:2px solid var(--black);
+      border-radius:10px;
+      padding:14px 32px;
+      font-family:'Syne',sans-serif;
+      font-size:16px;
+      font-weight:700;
+      cursor:pointer;
+      box-shadow:var(--shadow);
+      transition:transform 0.1s,box-shadow 0.1s;
+      width:100%;
+      letter-spacing:0.01em;
+    }
+    .btn:hover:not(:disabled){transform:translate(-2px,-2px);box-shadow:var(--shadow-lg);}
+    .btn:active:not(:disabled){transform:translate(1px,1px);box-shadow:2px 2px 0 var(--black);}
+    .btn:disabled{opacity:0.6;cursor:not-allowed;}
+    .disclaimer{
+      margin-top:12px;
+      font-size:12px;
+      color:var(--gray);
+      text-align:center;
+      line-height:1.4;
+    }
+    /* LOADING */
+    .loading-bar{
+      display:none;
+      margin-top:16px;
+      height:6px;
+      background:var(--light-gray);
+      border:2px solid var(--black);
+      border-radius:999px;
+      overflow:hidden;
+    }
+    .loading-bar-fill{
+      height:100%;
+      background:var(--pomegranate);
+      width:0%;
+      animation:load 1.5s ease-in-out infinite;
+    }
+    @keyframes load{0%{width:0%}50%{width:70%}100%{width:100%}}
+    .loading-text{
+      display:none;
+      text-align:center;
+      margin-top:10px;
+      font-size:13px;
+      font-weight:600;
+      color:var(--gray);
+    }
+    /* ERROR */
+    .error-box{
+      display:none;
+      margin-top:16px;
+      background:var(--danger-bg);
+      border:2px solid var(--danger);
+      border-radius:8px;
+      padding:12px 16px;
+      color:var(--danger);
+      font-size:14px;
+      font-weight:600;
+    }
+    /* RESULTS */
+    #result{display:none;}
+    .result-header{
+      font-family:'Syne',sans-serif;
+      font-size:18px;
+      font-weight:700;
+      margin-bottom:20px;
+      display:flex;align-items:center;gap:8px;
+    }
+    .condition-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+      gap:16px;
+      margin-bottom:24px;
+    }
+    .cond-card{
+      border:2px solid var(--black);
+      border-radius:var(--radius);
+      padding:20px;
+      background:var(--cream);
+      box-shadow:var(--shadow);
+      position:relative;
+      overflow:hidden;
+    }
+    .cond-card.hidden{display:none;}
+    .cond-card-name{
+      font-family:'Syne',sans-serif;
+      font-size:14px;
+      font-weight:700;
+      margin-bottom:8px;
+    }
+    .pill{
+      display:inline-block;
+      padding:4px 12px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:700;
+      border:2px solid var(--black);
+      background:var(--light-gray);
+      color:var(--black);
+    }
+    .pill.danger{background:var(--danger-bg);color:var(--danger);border-color:var(--danger);}
+    .pill.ok{background:var(--ok-bg);color:var(--ok);border-color:var(--ok);}
+    .stats-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fill,minmax(170px,1fr));
+      gap:12px;
+      margin-bottom:20px;
+    }
+    .stat-box{
+      border:2px solid var(--black);
+      border-radius:10px;
+      padding:16px;
+      background:var(--white);
+      box-shadow:3px 3px 0 var(--black);
+    }
+    .stat-label{
+      font-size:10px;
+      font-weight:700;
+      letter-spacing:0.06em;
+      text-transform:uppercase;
+      color:var(--gray);
+      margin-bottom:6px;
+    }
+    .stat-value{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;}
+    .summary-box{
+      border:2px solid var(--black);
+      border-radius:10px;
+      padding:20px;
+      background:var(--pomegranate);
+      color:#fff;
+      box-shadow:var(--shadow);
+    }
+    .summary-box-title{
+      font-family:'Syne',sans-serif;
+      font-size:13px;
+      font-weight:700;
+      letter-spacing:0.04em;
+      text-transform:uppercase;
+      margin-bottom:8px;
+      opacity:0.8;
+    }
+    .summary-box-text{
+      font-size:15px;
+      line-height:1.55;
+    }
+    /* SKIPPED */
+    .skipped-box{
+      display:none;
+      border:2px dashed #999;
+      border-radius:10px;
+      padding:14px 18px;
+      background:var(--light-gray);
+      font-size:13px;
+      color:var(--gray);
+      margin-bottom:16px;
+    }
+    .skipped-label{font-weight:700;margin-bottom:4px;color:var(--black);}
+    /* DASHBOARDS */
+    .dash-section{margin-top:0;}
+    .dash-card{background:var(--white);border:2px solid var(--black);border-radius:var(--radius);box-shadow:var(--shadow-lg);padding:32px;margin-bottom:24px;}
+    .dash-header{display:flex;align-items:center;gap:12px;margin-bottom:20px;}
+    .dash-icon{width:40px;height:40px;border:2px solid var(--black);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;box-shadow:3px 3px 0 var(--black);}
+    .dash-icon.patient{background:#dbeafe;}
+    .dash-icon.doctor{background:#fef9c3;}
+    .dash-title{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;}
+    .dash-subtitle{font-size:12px;color:var(--gray);font-weight:600;letter-spacing:0.04em;text-transform:uppercase;margin-top:2px;}
+    .result-row{display:flex;flex-direction:column;gap:14px;}
+    .result-item{border:2px solid var(--black);border-radius:10px;padding:16px 20px;box-shadow:3px 3px 0 var(--black);}
+    .result-item.low{background:#dcfce7;border-color:#16a34a;}
+    .result-item.moderate{background:#fef9c3;border-color:#ca8a04;}
+    .result-item.high{background:#fee2e2;border-color:#dc2626;}
+    .result-item-name{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:8px;}
+    .result-item-text{font-size:14px;line-height:1.55;color:#1e293b;}
+    .risk-badge{display:inline-block;padding:2px 10px;border-radius:999px;font-size:11px;font-weight:700;border:2px solid currentColor;margin-left:auto;}
+    .risk-badge.low{background:#dcfce7;color:#16a34a;}
+    .risk-badge.moderate{background:#fef9c3;color:#ca8a04;}
+    .risk-badge.high{background:#fee2e2;color:#dc2626;}
+    .doc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;}
+    .doc-item{border:2px solid var(--black);border-radius:10px;padding:18px;box-shadow:3px 3px 0 var(--black);background:var(--cream);}
+    .doc-item-title{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;margin-bottom:10px;padding-bottom:8px;border-bottom:2px dashed #ccc;display:flex;justify-content:space-between;align-items:center;}
+    .doc-row{display:flex;justify-content:space-between;font-size:13px;padding:4px 0;border-bottom:1px solid #f0f0f0;}
+    .doc-row:last-child{border-bottom:none;}
+    .doc-key{color:var(--gray);font-weight:600;}
+    .doc-val{font-weight:700;}
+    .download-wrap{text-align:center;margin-bottom:24px;}
+    .btn-download{display:inline-flex;align-items:center;gap:8px;background:#0D0D0D;color:#fff;border:2px solid var(--black);border-radius:10px;padding:14px 36px;font-family:'Syne',sans-serif;font-size:16px;font-weight:700;cursor:pointer;box-shadow:var(--shadow);transition:transform 0.1s,box-shadow 0.1s;letter-spacing:0.01em;}
+    .btn-download:hover{transform:translate(-2px,-2px);box-shadow:var(--shadow-lg);}
+    .btn-download:active{transform:translate(1px,1px);box-shadow:2px 2px 0 var(--black);}
+    /* FOOTER */
+    footer{
+      border-top:2px solid var(--black);
+      background:var(--black);
+      color:#fff;
+      text-align:center;
+      padding:32px 24px;
+      font-size:13px;
+    }
+    footer strong{color:var(--pomegranate-light);}
+  </style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="#">
+    <span>❤</span> HemaScope
+  </a>
+  <div class="nav-badge">AI-Powered</div>
+</nav>
+
+<section class="hero">
+  <div class="hero-content">
+    <div class="hero-eyebrow">Predictive Health Assistant</div>
+    <h1>Smarter health checks,<br/><em>before small risks</em><br/>become big issues</h1>
+    <p class="hero-sub">Enter your lab values. Our trained ML model evaluates what it can with confidence to predict risks early, while our AI provides insights and transparently marks anything not evaluated.</p>
+    <div class="tags">
+      <span class="tag">🔬 Predictive</span>
+      <span class="tag">🛡 Preventive</span>
+      <span class="tag">⚡ Proactive</span>
+      <span class="tag">🤖 AI-Powered</span>
+    </div>
+  </div>
+  <div class="hero-visual">🫀</div>
+</section>
+
+<main class="main">
+  <div class="card">
+    <div class="card-title">
+      <div class="card-title-icon">📋</div>
+      Enter Your Lab Values
+    </div>
+    <p class="card-desc">Fill in whichever values you have — partial inputs are fine. The system will analyze what it can and flag the rest.</p>
+
+    <form id="analyzeForm">
+      <div class="form-grid">
+        <div class="field">
+          <label for="hemoglobin">Hemoglobin</label>
+          <div class="input-wrap">
+            <input id="hemoglobin" type="number" step="0.1" placeholder="e.g. 13.4"/>
+            <span class="input-unit">g/dL</span>
+          </div>
+        </div>
+        <div class="field">
+          <label for="glucose">Glucose</label>
+          <div class="input-wrap">
+            <input id="glucose" type="number" step="0.1" placeholder="e.g. 96"/>
+            <span class="input-unit">mg/dL</span>
+          </div>
+        </div>
+        <div class="field">
+          <label for="cholesterol">Cholesterol</label>
+          <div class="input-wrap">
+            <input id="cholesterol" type="number" step="0.1" placeholder="e.g. 182"/>
+            <span class="input-unit">mg/dL</span>
+          </div>
+        </div>
+        <div class="field">
+          <label for="hba1c">HbA1c</label>
+          <div class="input-wrap">
+            <input id="hba1c" type="number" step="0.1" placeholder="e.g. 5.7"/>
+            <span class="input-unit">%</span>
+          </div>
+        </div>
+        <div class="field">
+          <label for="ldl">LDL</label>
+          <div class="input-wrap">
+            <input id="ldl" type="number" step="0.1" placeholder="e.g. 110"/>
+            <span class="input-unit">mg/dL</span>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn" id="submitBtn" type="submit">
+        <span id="btnText">⚡ Run Quick Analysis</span>
+      </button>
+      <div class="loading-bar" id="loadingBar"><div class="loading-bar-fill"></div></div>
+      <p class="loading-text" id="loadingText">Analyzing your health data…</p>
+      <div class="error-box" id="errorBox"></div>
+      <p class="disclaimer">⚕ This is a screening assistant, not a final medical diagnosis. Always consult a qualified physician.</p>
+    </form>
+  </div>
+
+  <div id="result">
+    <div class="card">
+      <div class="result-header">📊 Analysis Results</div>
+
+      <div class="condition-grid" id="conditionGrid">
+        <div id="cardDiabetes" class="cond-card hidden">
+          <div class="cond-card-name">🩸 Diabetes</div>
+          <div id="diabetesStatus" class="pill">Not detected</div>
+        </div>
+        <div id="cardHeart" class="cond-card hidden">
+          <div class="cond-card-name">❤️ Heart Disease Risk</div>
+          <div id="heartStatus" class="pill">Not detected</div>
+        </div>
+        <div id="cardAnemia" class="cond-card hidden">
+          <div class="cond-card-name">💉 Anemia</div>
+          <div id="anemiaStatus" class="pill">Not detected</div>
+        </div>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-box">
+          <div class="stat-label">Primary Condition</div>
+          <div class="stat-value" id="primaryVal">—</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Severity</div>
+          <div class="stat-value" id="severityVal">—</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Risk Level</div>
+          <div class="stat-value" id="riskVal">—</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Confidence</div>
+          <div class="stat-value" id="confVal">—</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Data Completeness</div>
+          <div class="stat-value" id="completeVal">—</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Detected Conditions</div>
+          <div id="conditionsVal" class="stat-value" style="font-size:14px;line-height:1.4;">—</div>
+        </div>
+      </div>
+
+      <div class="skipped-box" id="skippedBox">
+        <div class="skipped-label">⚠ Not Evaluated</div>
+        <div id="skippedList"></div>
+      </div>
+
+      <div class="summary-box">
+        <div class="summary-box-title">Quick Summary</div>
+        <div class="summary-box-text" id="summaryText"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ML DASHBOARDS -->
+  <div id="mlDashboards" style="display:none;" class="dash-section">
+    <div id="patientDashboard" class="dash-card">
+      <div class="dash-header">
+        <div class="dash-icon patient">🧑</div>
+        <div>
+          <div class="dash-title">Patient Report</div>
+          <div class="dash-subtitle">Plain-language summary for you</div>
+        </div>
+      </div>
+      <div class="result-row" id="patientRows"></div>
+    </div>
+
+    <div id="doctorDashboard" class="dash-card">
+      <div class="dash-header">
+        <div class="dash-icon doctor">🩺</div>
+        <div>
+          <div class="dash-title">Doctor Report</div>
+          <div class="dash-subtitle">Clinical & technical analysis</div>
+        </div>
+      </div>
+      <div class="doc-grid" id="doctorCards"></div>
+    </div>
+
+    <div id="chartsSection" class="dash-card" style="display:none;">
+      <div class="dash-header">
+        <div class="dash-icon patient" style="background:#fce7f3;">📈</div>
+        <div>
+          <div class="dash-title">Disease Trend Visualization</div>
+          <div class="dash-subtitle">Your risk progress over recent analyses</div>
+        </div>
+      </div>
+      <div id="charts" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 24px;">
+        <div><canvas id="diabetesChart"></canvas></div>
+        <div><canvas id="heartChart"></canvas></div>
+        <div><canvas id="anemiaChart"></canvas></div>
+      </div>
+    </div>
+
+    <!-- AI INSIGHTS SECTION -->
+    <div id="aiInsightsSection" class="dash-card" style="display:none; transition: opacity 0.5s ease; opacity: 0;">
+      <div class="dash-header">
+        <div class="dash-icon patient" style="background:#e0e7ff;">💡</div>
+        <div>
+          <div class="dash-title">AI Health Suggestions</div>
+          <div class="dash-subtitle">Personalized action plan</div>
+        </div>
+      </div>
+      <div id="aiInsightsContent" class="result-item-text"></div>
+    </div>
+
+    <div class="download-wrap" style="display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;">
+      <button class="btn-download" id="aiInsightsBtn" onclick="generateInsights()" style="background:#4f46e5; border-color:#312e81;">💡 Get AI Insights</button>
+      <button class="btn-download" id="downloadBtn" onclick="downloadReport()">📄 Download Full Report (PDF)</button>
+    </div>
+  </div>
+</main>
+
+<footer>
+  Built with ❤ by <strong>HemaScope</strong> — AI-driven health monitoring for early insight and better decisions.
+</footer>
+
+<script>
+  // Existing local-API logic 
+  const form = document.getElementById("analyzeForm");
+  const submitBtn = document.getElementById("submitBtn");
+  const btnText = document.getElementById("btnText");
+  const loadingBar = document.getElementById("loadingBar");
+  const loadingText = document.getElementById("loadingText");
+  const errorBox = document.getElementById("errorBox");
+  const resultEl = document.getElementById("result");
+  let lastAnalysisResults = null;
+
+  const setPill = (el, text, variant) => {
+    el.textContent = text;
+    el.className = "pill" + (variant === "danger" ? " danger" : variant === "ok" ? " ok" : "");
+  };
+  const setLoading = (on) => {
+    submitBtn.disabled = on;
+    btnText.textContent = on ? "Analyzing…" : "⚡ Run Quick Analysis";
+    loadingBar.style.display = on ? "block" : "none";
+    loadingText.style.display = on ? "block" : "none";
+  };
+  const resetLegacy = () => {
+    resultEl.style.display = "none";
+    errorBox.style.display = "none";
+    ["cardDiabetes","cardHeart","cardAnemia"].forEach(id => document.getElementById(id).classList.add("hidden"));
+    document.getElementById("skippedBox").style.display = "none";
+  };
+  const showError = (msg) => { resetLegacy(); errorBox.style.display = "block"; errorBox.textContent = "⚠ " + msg; };
+
+  // ── HuggingFace ML API helpers (Gradio 4 REST API) 
+  const HF_BASE = "https://anshulnarang23-disease-predictor.hf.space";
+
+  // fnName = "predict_diabetes" | "predict_anemia" | "predict_heart" (NO leading slash)
+  async function callHF(fnName, data) {
+    // Step 1: POST to submit — correct Gradio 4 URL (no /v2 prefix)
+    const submitRes = await fetch(`${HF_BASE}/gradio_api/call/${fnName}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ data })
+    });
+    if (!submitRes.ok) {
+      const txt = await submitRes.text().catch(() => "");
+      throw new Error(`${fnName} submit failed (${submitRes.status}): ${txt.slice(0,120)}`);
+    }
+    const json = await submitRes.json();
+    const event_id = json.event_id;
+    if (!event_id) throw new Error(`${fnName}: no event_id in response`);
+
+    // Step 2: SSE stream to read result
+    return new Promise((resolve, reject) => {
+      const evtUrl = `${HF_BASE}/gradio_api/call/${fnName}/${event_id}`;
+      const es = new EventSource(evtUrl);
+      const timer = setTimeout(() => { es.close(); reject(new Error(`${fnName} timed out after 30s`)); }, 30000);
+      es.addEventListener("complete", (e) => {
+        clearTimeout(timer); es.close();
+        try { const p = JSON.parse(e.data); resolve(Array.isArray(p) ? String(p[0]) : String(p)); }
+        catch { resolve(String(e.data)); }
+      });
+      es.onerror = (e) => {
+        clearTimeout(timer); es.close();
+        reject(new Error(`${fnName} stream error`));
+      };
+    });
+  }
+
+  function getInputs() {
+    const v = (id, def) => { const x = parseFloat(document.getElementById(id).value); return isNaN(x) ? def : x; };
+    return {
+      hemoglobin:  v("hemoglobin",  13.5),
+      glucose:     v("glucose",     96),
+      cholesterol: v("cholesterol", 180),
+      hba1c:       v("hba1c",       5.5),
+      ldl:         v("ldl",         100)
+    };
+  }
+
+  // ── Risk classification helper 
+  function classifyRisk(predText, conditionName) {
+    const match = (predText || "").match(/(\d+(?:\.\d+)?)%/);
+    if (match) {
+      const pct = parseFloat(match[1]);
+      
+      let lowThresh = 25;
+      let modThresh = 50;
+      if (conditionName === "Diabetes") {
+        lowThresh = 80;
+        modThresh = 88;
+      } else if (conditionName === "Heart") {
+        lowThresh = 60;
+        modThresh = 80;
+      }
+
+      if (pct < lowThresh) return "low";
+      if (pct < modThresh) return "moderate";
+      return "high";
+    }
+    const t = (predText || "").toLowerCase();
+    if (t.includes("no ") || t.includes("negative") || t.includes("normal") || t.includes("not ") || t.includes("low")) return "low";
+    if (t.includes("mild") || t.includes("pre") || t.includes("borderline") || t.includes("possible") || t.includes("moderate")) return "moderate";
+    return "high";
+  }
+
+  function riskLabel(r) { return r === "low" ? "Low" : r === "moderate" ? "Moderate" : "High"; }
+
+  function patientMsg(name, pred, risk) {
+    const msgs = {
+      low: {
+        Diabetes: "Great news! Your blood sugar markers look healthy. Keep up a balanced diet and stay active.",
+        Anemia:   "Your blood counts appear normal. Make sure you're eating iron-rich foods like leafy greens and lean meats.",
+        Heart:    "Your heart health indicators look good. Continue regular exercise and a heart-friendly diet."
+      },
+      moderate: {
+        Diabetes: "Your results suggest a possible pre-diabetic tendency. Consider reducing sugary foods and increasing physical activity.",
+        Anemia:   "There are mild signs of anemia. Try adding more iron-rich foods to your diet and consider a doctor check-up.",
+        Heart:    "You may have a moderate cardiovascular risk. Watch your cholesterol intake, manage stress, and stay active."
+      },
+      high: {
+        Diabetes: "Your indicators suggest a higher risk of diabetes. Please consult a doctor soon for proper testing and guidance.",
+        Anemia:   "Signs of significant anemia detected. A medical evaluation and possible supplementation is strongly recommended.",
+        Heart:    "High cardiovascular risk markers detected. Please seek medical advice promptly for a thorough cardiac evaluation."
+      }
+    };
+    return (msgs[risk] && msgs[risk][name]) || `Result: ${pred}. Please consult your healthcare provider for further evaluation.`;
+  }
+
+  function doctorData(name, pred, risk, inputs) {
+    const rows = { Diabetes: [
+      ["Glucose",     inputs.glucose + " mg/dL"],
+      ["HbA1c",       inputs.hba1c + " %"],
+      ["Cholesterol", inputs.cholesterol + " mg/dL"],
+      ["LDL",         inputs.ldl + " mg/dL"],
+      ["Prediction",  pred],
+      ["Risk Class",  riskLabel(risk)]
+    ], Anemia: [
+      ["Hemoglobin",  inputs.hemoglobin + " g/dL"],
+      ["MCV (est.)",  "90 fL"],
+      ["MCH (est.)",  "30 pg"],
+      ["Prediction",  pred],
+      ["Risk Class",  riskLabel(risk)]
+    ], Heart: [
+      ["Cholesterol", inputs.cholesterol + " mg/dL"],
+      ["LDL",         inputs.ldl + " mg/dL"],
+      ["Glucose",     inputs.glucose + " mg/dL"],
+      ["Prediction",  pred],
+      ["Risk Class",  riskLabel(risk)]
+    ]};
+    return rows[name] || [["Prediction", pred], ["Risk Class", riskLabel(risk)]];
+  }
+
+  const conditionIcons = { Diabetes: "🩸", Anemia: "💉", Heart: "❤️" };
+
+  function renderDashboards(results, inputs) {
+    const patientRows = document.getElementById("patientRows");
+    const doctorCards = document.getElementById("doctorCards");
+    patientRows.innerHTML = "";
+    doctorCards.innerHTML = "";
+
+    results.forEach(({ name, pred, risk }) => {
+      // Patient row
+      const icon = conditionIcons[name] || "🔬";
+      const msg = patientMsg(name, pred, risk);
+      const ri = document.createElement("div");
+      ri.className = `result-item ${risk}`;
+      ri.innerHTML = `<div class="result-item-name">${icon} ${name} <span class="risk-badge ${risk}">${riskLabel(risk)} Risk</span></div>
+        <div class="result-item-text">${msg}</div>`;
+      patientRows.appendChild(ri);
+
+      // Doctor card
+      const rows = doctorData(name, pred, risk, inputs);
+      const dc = document.createElement("div");
+      dc.className = "doc-item";
+      dc.innerHTML = `<div class="doc-item-title">${icon} ${name} <span class="risk-badge ${risk}">${riskLabel(risk)}</span></div>`
+        + rows.map(([k, v]) => `<div class="doc-row"><span class="doc-key">${k}</span><span class="doc-val">${v}</span></div>`).join("");
+      doctorCards.appendChild(dc);
+    });
+
+    document.getElementById("mlDashboards").style.display = "block";
+    document.getElementById("mlDashboards").scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  //  PDF download 
+  function downloadReport() {
+    const el = document.getElementById("mlDashboards");
+    const wrap = document.querySelector(".download-wrap");
+
+    if (wrap) wrap.style.display = "none";
+    
+    const opt = {
+      margin: [10, 10, 10, 10],
+      filename: "HemaScope_Report.pdf",
+      image: { type: "jpeg", quality: 0.98 },
+      html2canvas: { scale: 2, useCORS: true, scrollY: 0, backgroundColor: "#FFF8F0" },
+      jsPDF: { unit: "mm", format: "a4", orientation: "portrait" }
+    };
+    
+    html2pdf().set(opt).from(el).save().then(() => { 
+      if (wrap) wrap.style.display = "flex"; 
+    });
+  }
+
+  //  History & Trend Visualization 
+  let historyData = JSON.parse(localStorage.getItem("ai_health_history") || "[]");
+  let chartInstances = {};
+
+  function extractRiskPercentage(predText) {
+    const match = predText.match(/(\d+(?:\.\d+)?)%/);
+    if (match) return parseFloat(match[1]);
+    
+    const lower = predText.toLowerCase();
+    if (lower.includes("high")) return 80;
+    if (lower.includes("moderate")) return 50;
+    return 10;
+  }
+
+  function saveHistory(results) {
+    const record = { timestamp: new Date().toISOString() };
+    results.forEach(r => {
+      record[r.name.toLowerCase()] = extractRiskPercentage(r.pred);
+    });
+    historyData.push(record);
+    if (historyData.length > 10) historyData.shift(); // Keep last 10 records
+    localStorage.setItem("ai_health_history", JSON.stringify(historyData));
+  }
+
+  function renderCharts() {
+    if (historyData.length === 0) return;
+    document.getElementById("chartsSection").style.display = "block";
+
+    const labels = historyData.map(d => {
+      const dt = new Date(d.timestamp);
+      return dt.toLocaleDateString() + ' ' + dt.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+    });
+
+    const datasetsInfo = [
+      { id: "diabetesChart", label: "Diabetes Risk (%)", key: "diabetes", color: "rgb(220, 38, 38)" },
+      { id: "heartChart", label: "Heart Disease Risk (%)", key: "heart", color: "rgb(202, 138, 4)" },
+      { id: "anemiaChart", label: "Anemia Risk (%)", key: "anemia", color: "rgb(22, 163, 74)" }
+    ];
+
+    datasetsInfo.forEach(info => {
+      const data = historyData.map(d => d[info.key] || 0);
+      const ctx = document.getElementById(info.id).getContext('2d');
+      
+      if (chartInstances[info.id]) {
+        chartInstances[info.id].data.labels = labels;
+        chartInstances[info.id].data.datasets[0].data = data;
+        chartInstances[info.id].update();
+      } else {
+        chartInstances[info.id] = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: labels,
+            datasets: [{
+              label: info.label,
+              data: data,
+              borderColor: info.color,
+              backgroundColor: info.color.replace('rgb', 'rgba').replace(')', ', 0.1)'),
+              borderWidth: 2,
+              fill: true,
+              tension: 0.3
+            }]
+          },
+          options: {
+            responsive: true,
+            scales: { y: { beginAtZero: true, max: 100 } },
+            plugins: { legend: { display: true } }
+          }
+        });
+      }
+    });
+  }
+
+
+  function generateInsights() {
+    if (!lastAnalysisResults) return;
+    
+    const btn = document.getElementById("aiInsightsBtn");
+    const section = document.getElementById("aiInsightsSection");
+    const content = document.getElementById("aiInsightsContent");
+    
+    // UI state
+    const origText = btn.innerHTML;
+    btn.innerHTML = "⏳ Generating insights...";
+    btn.disabled = true;
+    section.style.display = "none";
+    section.style.opacity = "0";
+
+    setTimeout(() => {
+      let suggestions = [];
+      let hasHigh = false;
+      let hasMod = false;
+
+      lastAnalysisResults.forEach(r => {
+        if (r.risk === "high") {
+          hasHigh = true;
+          if (r.name === "Diabetes") {
+            suggestions.push("<strong>For your blood sugar:</strong><ul style='margin-left: 20px; margin-top: 4px; margin-bottom: 12px; line-height: 1.6;'><li>Reduce sugar intake</li><li>Increase physical activity</li><li>Maintain weight</li><li>Regular glucose monitoring</li></ul>");
+          } else if (r.name === "Heart") {
+            suggestions.push("<strong>For your heart health:</strong><ul style='margin-left: 20px; margin-top: 4px; margin-bottom: 12px; line-height: 1.6;'><li>Reduce saturated fats</li><li>Increase cardio exercise</li><li>Manage stress</li><li>Reduce salt intake</li></ul>");
+          } else if (r.name === "Anemia") {
+            suggestions.push("<strong>For your iron levels:</strong><ul style='margin-left: 20px; margin-top: 4px; margin-bottom: 12px; line-height: 1.6;'><li>Include iron-rich foods (spinach, legumes)</li><li>Boost Vitamin C intake</li><li>Avoid tea/coffee after meals</li></ul>");
+          }
+        } else if (r.risk === "moderate") {
+          hasMod = true;
+        }
+      });
+
+      if (!hasHigh && hasMod) {
+        suggestions.push("<strong>Preventive Suggestions:</strong><ul style='margin-left: 20px; margin-top: 4px; margin-bottom: 12px; line-height: 1.6;'><li>Consider small lifestyle improvements to lower your moderate risks.</li><li>Focus on a nutrient-rich, balanced diet.</li><li>Stay proactive with periodic check-ups.</li></ul>");
+      }
+
+      if (!hasHigh && !hasMod) {
+        suggestions.push("<strong>Maintenance Advice:</strong><ul style='margin-left: 20px; margin-top: 4px; margin-bottom: 12px; line-height: 1.6;'><li>Maintain a balanced diet rich in nutrients</li><li>Engage in regular physical activity (30 mins daily)</li><li>Stay hydrated</li><li>Monitor your health regularly</li></ul>");
+      }
+
+      content.innerHTML = suggestions.join("");
+      
+      section.style.display = "block";
+      setTimeout(() => { section.style.opacity = "1"; }, 50);
+
+      btn.innerHTML = origText;
+      btn.disabled = false;
+      section.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 1500); 
+  }
+
+  async function runAnalysis(inputs) {
+    // Diabetes: [Age, Gender, BMI, Chol, TG, HDL, LDL, Cr, BUN] — 9 params
+    // Mapping HbA1c to BMI & Glucose to TG so the XGBoost model outputs reflect input severity.
+    const diabetesData = [40, 1, 20 + (inputs.hba1c - 5.0) * 4, inputs.cholesterol, inputs.glucose * 1.5, 50, inputs.ldl, 1.0, 14];
+    
+    // Anemia: [Gender, Hemoglobin, MCH, MCHC, MCV] — 5 params (Hemoglobin MUST be 2nd param)
+    const anemiaData   = [1, inputs.hemoglobin, 30.0, 34.0, 90];
+    
+    // Heart: [Age,Sex,ChestPain,Restbps,Chol,Fbs,RestECG,MaxHR,Exang,Oldpeak,Slope,Ca,Thal] — 13 params
+    // Set Fbs (Fasting Blood Sugar) to 1 if glucose > 120
+    const heartData    = [50, 1, 2, 130, inputs.cholesterol, inputs.glucose > 120 ? 1 : 0, 1, 150, 0, 1.0, 2, 0, 2];
+
+    const [diabetesPred, anemiaPred, heartPred] = await Promise.all([
+      callHF("predict_diabetes", diabetesData),
+      callHF("predict_anemia",   anemiaData),
+      callHF("predict_heart",    heartData)
+    ]);
+
+    return [
+      { name: "Diabetes", pred: String(diabetesPred), risk: classifyRisk(String(diabetesPred), "Diabetes") },
+      { name: "Anemia",   pred: String(anemiaPred),   risk: classifyRisk(String(anemiaPred), "Anemia")   },
+      { name: "Heart",    pred: String(heartPred),    risk: classifyRisk(String(heartPred), "Heart")    }
+    ];
+  }
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    resetLegacy();
+    document.getElementById("mlDashboards").style.display = "none";
+
+    const inputs = getInputs();
+
+    try {
+      const results = await runAnalysis(inputs);
+      lastAnalysisResults = results;
+      renderDashboards(results, inputs);
+      saveHistory(results);
+      renderCharts();
+    } catch (err) {
+      showError("ML API error: " + err.message + ". Check your internet connection.");
+    } finally {
+      setLoading(false);
+    }
+  });
+</script>
+</body>
+</html>
